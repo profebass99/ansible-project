@@ -1,0 +1,34 @@
+- name: Configure webservers
+  hosts: webservers
+  become: yes
+  tasks:
+  - name: Install the latest version of Apache
+    ansible.builtin.apt:
+      name: apache2
+      state: latest
+      update_cache: true 
+
+  - name: Enable Apache
+    ansible.builtin.service:
+      name: apache2
+      state: started
+      enabled: true
+
+  - name: Copying html file
+    ansible.builtin.copy:
+      src: ./index.html
+      dest: /var/www/html/index.html
+
+  - name: Install a list of packages (suitable replacement for 2.11 loop deprecation warning)
+    ansible.builtin.apt:
+      name:
+        - nginx
+        - postgresql
+        - mariadb-server
+      state: present
+
+  - name: Enable and start up mariadb-server
+    ansible.builtin.service:
+      name: mariadb
+      state: started
+      enabled: true
