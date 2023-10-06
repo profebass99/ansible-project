@@ -25,6 +25,7 @@
         - nginx
         - postgresql
         - mariadb-server
+        - python3-mysqldb
       state: present
 
   - name: Enable and start up mariadb-server
