@@ -1,35 +1,143 @@
 - name: Configure webservers
-  hosts: webservers
+  hosts: all
   become: yes
   tasks:
-  - name: Install the latest version of Apache
-    ansible.builtin.apt:
-      name: apache2
-      state: latest
-      update_cache: true 
+################# Install NTP ############################
+  # - name: Install setup for Ubuntu server
+  #   ansible.builtin.apt:
+  #     name: "{{item}}"
+  #     state: present
+  #     update_cache: true
+  #   when: ansible_distribution == "Ubuntu"
+  #   loop:
+  #     - wget
+  #     - zip
+  #     - unzip
+  #     - tree
+  #     - git
+  #     - chrony
+  #     - apache2
 
-  - name: Enable Apache
-    ansible.builtin.service:
-      name: apache2
-      state: started
-      enabled: true
+  # - name: Install setup for Amazon server
+  #   ansible.builtin.yum:
+  #     name: "{{item}}"
+  #     state: present
+  #     update_cache: true
+  #   when: ansible_distribution == "Amazon"
+  #   loop:
+  #     - wget
+  #     - zip
+  #     - unzip
+  #     - tree
+  #     - git
+  #     - chrony
+  #     - httpd
 
-  - name: Copying html file
+  - name: Copying motd file for amazon linux
     ansible.builtin.copy:
-      src: ./index.html
-      dest: /var/www/html/index.html
+      src: ./motd
+      dest: /etc/motd
+    when: ansible_distribution == "Amazon"
 
-  - name: Install a list of packages (suitable replacement for 2.11 loop deprecation warning)
-    ansible.builtin.apt:
-      name:
-        - nginx
-        - postgresql
-        - mariadb-server
-        - python3-mysqldb
-      state: present
+  - name: Copying motd file for ubuntu
+    ansible.builtin.copy:
+      src: ./motd
+      dest: /etc/update-motd.d/
+      mode: a+x
+    when: ansible_distribution == "Ubuntu"
 
-  - name: Enable and start up mariadb-server
+  - name: Copying html file for both all servers
+    ansible.builtin.template:
+      src: ./templates/chrony.conf.j2
+      dest: /etc/chrony.conf
+
+  - name: Restart Chrony
     ansible.builtin.service:
-      name: mariadb
-      state: started
+      name: chronyd
+      state: restarted
       enabled: true
+
+################# Install HTTPD ############################
+
+#   - name: Install the latest version of Apache on "Ubuntu"
+#     ansible.builtin.yum:
+#       name: apache2
+#       state: present
+#       update_cache: true
+#     when: ansible_distribution == "Ubuntu"
+
+#   - name: Install the latest version of Apache on linux
+#     ansible.builtin.yum:
+#       name: httpd
+#       state: present
+#     when: ansible_distribution == "Amazon"
+
+#   - name: Enable Apache
+#     ansible.builtin.service:
+#       name: apache2
+#       state: started
+#       enabled: true
+
+#   - name: Enable httpd
+#     ansible.builtin.service:
+#       name: httpd
+#       state: started
+#       enabled: true
+# ################# COPY WEBFILE CONTENT ###########################
+#   - name: Copying html file
+#     ansible.builtin.copy:
+#       src: ./index.html
+#       dest: /var/www/html/index.html
+
+#   # - name: Install a list of packages (suitable replacement for 2.11 loop deprecation warning)
+#   #   ansible.builtin.apt:
+#   #     name:
+#   #       - nginx
+#   #       - postgresql
+#   #       - mariadb-server
+#   #       - python3-mysqldb
+#   #     state: present
+
+#   # - name: Install a list of packages (suitable replacement for 2.11 loop deprecation warning)
+#   #   ansible.builtin.yum:
+#   #     name:
+#   #       - nginx
+#   #       - postgresql
+#   #       - mariadb-server
+#   #       - python3-mysqldb
+#   #     state: present
+
+#   # - name: Enable and start up mariadb-server
+#   #   ansible.builtin.service:
+#   #     name: mariadb
+#   #     state: started
+#   #     enabled: true
+
+#   # - name: create a new database with name "admin_db"
+#   #   mysql_db:
+#   #     name: "{{ db_name }}"
+#   #     state: present
+#   #     login_unix_socket: /var/run/mysqld/mysqld.sock
+
+#   # - name: update mysql root password for database  
+#   #   mysql_user:  
+#   #     name: "{ db_user }}"   
+#   #     password: "{{ db_password }}"  
+#   #     priv: "*.*:ALL,GRANT" 
+#   #     login_unix_socket: /var/run/mysqld/mysqld.sock
+
+#   - name: print ip of target host
+#     ansible.builtin.debug:
+#       msg: "{{ansible_all_ipv4_addresses}}"
+
+#   - name: print core of target host
+#     ansible.builtin.debug:
+#       msg: "{{ansible_processor_cores}}"
+
+#   - name: print core of target host
+#     ansible.builtin.debug:
+#       msg: "{{ ansible_distribution }}"
+
+#   - name: print memory of target host
+#     ansible.builtin.debug:
+#       msg: "{{ ansible_memory_mb }}"

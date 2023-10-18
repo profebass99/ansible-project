@@ -1,0 +1,9 @@
+# varibale file that is accessible to all host
+db_name: admin_db
+db_password: password
+db_user: admin
+
+chrony1: pool 0.es.pool.ntp.org
+chrony2: pool 1.es.pool.ntp.org
+chrony3: pool 2.es.pool.ntp.org
+chrony4: pool 3.es.pool.ntp.org
