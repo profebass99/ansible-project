@@ -14,6 +14,8 @@
         name: python3  # You can specify 'python3' for Python 3
         state: latest  # Ensure Python is installed
       become: yes
+      notify: 
+        - Update Python using yum
 
     - name: Install pip (Python package manager)
       package:
@@ -24,5 +26,9 @@
     - name: Install boto3 library using pip
       pip:
         name: boto3
-        state: latest  # Ensure boto3 is installed
+        state: latest  # Ensure boto3 is installeda
 
+  handlers:
+    - name: Update Python using yum
+      command: yum -y install python3
+      when: ansible_host == "10.0.0.18"
