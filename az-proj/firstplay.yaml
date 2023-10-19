@@ -1,0 +1,28 @@
+---
+- name: Install Python and boto3
+  hosts: all
+  become: yes  # This is required to run commands with sudo
+
+  tasks:
+    - name: Update package cache (for apt-based systems)
+      apt:
+        update_cache: yes
+      when: ansible_pkg_mgr == 'apt'
+
+    - name: Install Python
+      package:
+        name: python3  # You can specify 'python3' for Python 3
+        state: latest  # Ensure Python is installed
+      become: yes
+
+    - name: Install pip (Python package manager)
+      package:
+        name: python3-pip  # Use 'python3-pip' for Python 3
+        state: latest  # Ensure pip is installed
+      become: yes
+
+    - name: Install boto3 library using pip
+      pip:
+        name: boto3
+        state: latest  # Ensure boto3 is installed
+
